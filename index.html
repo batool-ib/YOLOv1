@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Computer Vision — Final Exam & Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Crimson Pro',Georgia,serif;background:#f5f0e8;color:#1a1208;min-height:100vh;}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:100;background:#1a1208;display:flex;align-items:stretch;gap:0;border-bottom:3px solid #c8a84b;}
+.nav-tab{padding:14px 32px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#8a7a5a;cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;margin-bottom:-3px;transition:color 0.2s,border-color 0.2s;}
+.nav-tab:hover{color:#e8d89a;}
+.nav-tab.active{color:#f5eecc;border-bottom-color:#c8a84b;}
+.nav-title{margin-left:auto;padding:14px 24px;font-family:'Crimson Pro',serif;font-size:15px;color:#6a5a3a;font-style:italic;display:flex;align-items:center;}
+
+/* ── SECTIONS ── */
+.section{display:none;}
+.section.active{display:block;}
+
+/* ══════════════════════════════
+   EXAM SECTION
+══════════════════════════════ */
+.exam-wrap{max-width:820px;margin:0 auto;padding:2rem 1rem 4rem;}
+
+/* Paper header */
+.exam-header{background:#fffdf5;border:1px solid #d4c89a;border-top:6px solid #1a1208;border-radius:0 0 4px 4px;padding:2rem 2.5rem 1.5rem;margin-bottom:0;position:relative;}
+.exam-header::before{content:'';position:absolute;left:80px;top:0;bottom:0;width:1px;background:#e8c8b0;opacity:0.6;}
+.exam-header h1{font-size:26px;font-weight:600;letter-spacing:0.02em;margin-bottom:4px;}
+.exam-header .sub{font-size:15px;color:#6a5a3a;font-style:italic;}
+.exam-meta{display:flex;gap:2rem;margin-top:1rem;font-size:13px;font-family:'Inter',sans-serif;color:#5a4a2a;}
+.exam-meta span{display:flex;align-items:center;gap:6px;}
+
+/* Stats bar */
+.stats-bar{background:#1a1208;color:#e8d89a;display:flex;gap:0;font-family:'Inter',sans-serif;font-size:12px;margin-bottom:0;}
+.stat-cell{flex:1;text-align:center;padding:8px 4px;border-right:1px solid #3a3020;}
+.stat-cell:last-child{border-right:none;}
+.stat-cell .sv{font-size:18px;font-weight:600;display:block;line-height:1.2;}
+.stat-cell .sl{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;}
+.sv.ok{color:#5dcaa5;}
+.sv.bad{color:#f09595;}
+.sv.blue{color:#85b7eb;}
+
+/* Progress */
+.prog-bar{height:4px;background:#d4c89a;margin-bottom:2rem;}
+.prog-fill{height:4px;background:#1a1208;transition:width 0.4s;}
+
+/* Section header */
+.q-section-hdr{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8a7a5a;border-bottom:1px solid #d4c89a;padding-bottom:6px;margin:2rem 0 1.25rem;}
+
+/* Question card */
+.q-card{background:#fffdf5;border:1px solid #d4c89a;border-radius:4px;margin-bottom:1.25rem;position:relative;overflow:hidden;transition:border-color 0.25s;}
+.q-card::before{content:'';position:absolute;left:68px;top:0;bottom:0;width:1px;background:#f0c8a0;opacity:0.7;}
+.q-card.state-correct{border-color:#1d9e75;box-shadow:0 0 0 1px #1d9e7540;}
+.q-card.state-wrong{border-color:#d85a30;box-shadow:0 0 0 1px #d85a3040;}
+.q-inner{padding:1.25rem 1.5rem 1.25rem 2rem;}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.q-num{font-family:'Source Code Pro',monospace;font-size:12px;color:#8a7a5a;font-weight:400;}
+.diff-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:2px;}
+.diff-easy{background:#eaf3de;color:#3b6d11;}
+.diff-medium{background:#faeeda;color:#633806;}
+.diff-hard{background:#fcebeb;color:#791f1f;}
+.type-badge{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:0.04em;padding:2px 8px;border-radius:2px;background:#e8e0d0;color:#5a4a2a;}
+.q-text{font-size:16px;line-height:1.65;margin-bottom:1rem;color:#1a1208;}
+.q-text code{font-family:'Source Code Pro',monospace;font-size:13px;background:#f0ead8;padding:1px 5px;border-radius:2px;color:#3a2a0a;}
+.q-formula{font-family:'Source Code Pro',monospace;font-size:13px;background:#f0ead8;border:1px solid #d4c89a;border-radius:3px;padding:8px 14px;margin:8px 0 12px;color:#2a1a0a;display:block;}
+
+/* Options */
+.opts{display:flex;flex-direction:column;gap:6px;}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid #d4c89a;border-radius:3px;background:#faf8f0;cursor:pointer;font-size:15px;line-height:1.5;text-align:left;width:100%;transition:background 0.15s,border-color 0.15s;color:#1a1208;font-family:'Crimson Pro',serif;}
+.opt:hover:not(:disabled){background:#f5f0e0;border-color:#b0a070;}
+.opt-letter{font-family:'Source Code Pro',monospace;font-size:12px;color:#8a7a5a;min-width:18px;margin-top:2px;}
+.opt.st-correct{background:#e1f5ee;border-color:#1d9e75;color:#04342c;}
+.opt.st-wrong{background:#fcebeb;border-color:#d85a30;color:#4a1b0c;}
+.opt.st-reveal{background:#f0faf6;border-color:#9fe1cb;color:#085041;}
+.opt:disabled{cursor:default;}
+
+/* TF */
+.tf-row{display:flex;gap:10px;}
+.tf-btn{flex:1;padding:10px;border:1px solid #d4c89a;border-radius:3px;background:#faf8f0;font-family:'Crimson Pro',serif;font-size:16px;cursor:pointer;transition:background 0.15s;color:#1a1208;}
+.tf-btn:hover:not(:disabled){background:#f5f0e0;}
+.tf-btn.st-correct{background:#e1f5ee;border-color:#1d9e75;color:#04342c;}
+.tf-btn.st-wrong{background:#fcebeb;border-color:#d85a30;color:#4a1b0c;}
+.tf-btn.st-reveal{background:#f0faf6;border-color:#9fe1cb;color:#085041;}
+.tf-btn:disabled{cursor:default;}
+
+/* Feedback */
+.feedback{display:none;margin-top:12px;padding:11px 14px;border-radius:3px;font-size:14px;line-height:1.6;}
+.feedback.fb-correct{background:#e1f5ee;border-left:3px solid #1d9e75;color:#04342c;}
+.feedback.fb-wrong{background:#fcebeb;border-left:3px solid #d85a30;color:#4a1b0c;}
+.feedback strong{font-weight:600;}
+.fb-icon{font-weight:700;margin-right:5px;}
+
+/* Submit */
+.submit-wrap{text-align:center;margin:2.5rem 0 1rem;}
+.submit-btn{padding:13px 48px;background:#1a1208;color:#f5eecc;border:none;border-radius:3px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;}
+.submit-btn:hover{opacity:0.85;}
+
+/* Result banner */
+.result-banner{display:none;background:#1a1208;color:#f5eecc;border:2px solid #c8a84b;border-radius:4px;padding:2rem;text-align:center;margin:2rem 0;}
+.result-banner .rb-score{font-size:52px;font-weight:600;color:#c8a84b;font-family:'Crimson Pro',serif;}
+.result-banner .rb-label{font-size:18px;font-style:italic;margin-bottom:8px;}
+.result-banner .rb-grade{display:inline-block;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;padding:6px 20px;border-radius:3px;margin:10px 0;}
+.grade-a{background:#1d9e75;color:#e1f5ee;}
+.grade-b{background:#185fa5;color:#e6f1fb;}
+.grade-c{background:#ba7517;color:#faeeda;}
+.grade-d{background:#993c1d;color:#faece7;}
+.unanswered-note{font-size:13px;color:#e8c090;margin-top:8px;font-family:'Inter',sans-serif;}
+.restart-btn{margin-top:1rem;padding:10px 28px;background:#c8a84b;color:#1a1208;border:none;border-radius:3px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.04em;}
+
+
+/* ══════════════════════════════
+   FLASHCARD SECTION
+══════════════════════════════ */
+.fc-wrap{background:#14110e;min-height:calc(100vh - 52px);padding:2rem 1rem 4rem;}
+.fc-inner{max-width:760px;margin:0 auto;}
+.fc-header{text-align:center;margin-bottom:1.5rem;}
+.fc-header h2{font-family:'Crimson Pro',serif;font-size:24px;color:#e8d89a;font-weight:400;font-style:italic;margin-bottom:4px;}
+.fc-header p{font-size:13px;font-family:'Inter',sans-serif;color:#6a5a3a;}
+
+/* Filter */
+.fc-filters{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:1.5rem;}
+.fc-filter{padding:5px 14px;border:1px solid #3a3020;border-radius:999px;background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:#8a7a5a;cursor:pointer;transition:all 0.15s;}
+.fc-filter:hover{border-color:#c8a84b;color:#e8d89a;}
+.fc-filter.active{background:#c8a84b;border-color:#c8a84b;color:#1a1208;font-weight:600;}
+
+/* FC progress */
+.fc-prog-wrap{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;}
+.fc-prog-bar{flex:1;height:3px;background:#2a2018;border-radius:999px;}
+.fc-prog-fill{height:3px;border-radius:999px;background:#c8a84b;transition:width 0.3s;}
+.fc-prog-lbl{font-family:'Source Code Pro',monospace;font-size:11px;color:#6a5a3a;white-space:nowrap;}
+
+/* Card */
+.fc-stage{perspective:1000px;margin-bottom:1.5rem;}
+.fc-card{width:100%;min-height:260px;position:relative;transform-style:preserve-3d;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);cursor:pointer;}
+.fc-card.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;width:100%;min-height:260px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;padding:2rem 2.5rem;display:flex;flex-direction:column;justify-content:center;}
+.fc-front{background:#1e1a14;border:1px solid #3a3020;}
+.fc-back{background:#2a2018;border:1px solid #c8a84b;transform:rotateY(180deg);}
+.fc-tag{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-bottom:1rem;display:inline-block;}
+.fc-tag-arch{background:#1d3a4a;color:#85b7eb;}
+.fc-tag-concept{background:#2a1d3a;color:#afa9ec;}
+.fc-tag-formula{background:#1d3a2a;color:#5dcaa5;}
+.fc-tag-compare{background:#3a2a1d;color:#fac775;}
+.fc-tag-limit{background:#3a1d1d;color:#f09595;}
+.fc-q{font-family:'Crimson Pro',serif;font-size:20px;color:#e8d89a;line-height:1.55;font-style:italic;}
+.fc-hint{font-family:'Inter',sans-serif;font-size:11px;color:#4a3a1a;margin-top:auto;padding-top:1rem;text-align:center;}
+.fc-ans-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#c8a84b;margin-bottom:10px;}
+.fc-ans{font-family:'Crimson Pro',serif;font-size:17px;color:#f5eecc;line-height:1.6;}
+.fc-ans code{font-family:'Source Code Pro',monospace;font-size:13px;background:#1a1208;padding:2px 6px;border-radius:2px;color:#c8a84b;}
+
+/* FC nav */
+.fc-nav{display:flex;align-items:center;justify-content:center;gap:12px;}
+.fc-nav-btn{width:44px;height:44px;border-radius:50%;border:1px solid #3a3020;background:transparent;color:#8a7a5a;font-size:20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
+.fc-nav-btn:hover{border-color:#c8a84b;color:#e8d89a;}
+.fc-flip-btn{padding:10px 24px;border-radius:3px;border:1px solid #c8a84b;background:transparent;color:#c8a84b;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:0.04em;transition:background 0.15s;}
+.fc-flip-btn:hover{background:#c8a84b1a;}
+.fc-kbd{text-align:center;margin-top:1rem;font-family:'Inter',sans-serif;font-size:11px;color:#3a3020;}
+.fc-kbd kbd{background:#2a2018;border:1px solid #3a3020;border-radius:2px;padding:1px 6px;color:#6a5a3a;font-family:'Source Code Pro',monospace;font-size:10px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-tab active" onclick="showSection('exam')">Final Exam</button>
+  <button class="nav-tab" onclick="showSection('fc')">Flashcards</button>
+  <div class="nav-title">Object Detection &amp; YOLO</div>
+</nav>
+
+<!-- ══════════ EXAM SECTION ══════════ -->
+<div class="section active" id="sec-exam">
+<div class="exam-wrap">
+
+  <div class="exam-header">
+    <h1>Computer Vision — Final Examination</h1>
+    <div class="sub">Object Detection, Faster R-CNN, and YOLO Architecture</div>
+    <div class="exam-meta">
+      <span>&#9632; 30 Questions</span>
+      <span>&#9632; Sections A &amp; B</span>
+      <span>&#9632; Answer all questions</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><span class="sv blue" id="s-ans">0</span><span class="sl">Answered</span></div>
+    <div class="stat-cell"><span class="sv ok" id="s-cor">0</span><span class="sl">Correct</span></div>
+    <div class="stat-cell"><span class="sv bad" id="s-wrg">0</span><span class="sl">Wrong</span></div>
+    <div class="stat-cell"><span class="sv" id="s-rem" style="color:#e8d89a">30</span><span class="sl">Remaining</span></div>
+  </div>
+
+  <div class="prog-bar"><div class="prog-fill" id="eprog" style="width:0%"></div></div>
+
+  <div id="exam-body"></div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitExam()">Submit Examination</button>
+  </div>
+
+  <div class="result-banner" id="result-banner">
+    <div class="rb-label">Final Score</div>
+    <div class="rb-score" id="rb-score"></div>
+    <div id="rb-grade" class="rb-grade"></div>
+    <div class="unanswered-note" id="rb-note"></div>
+    <br/>
+    <button class="restart-btn" onclick="restartExam()">Retake Examination</button>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════ FLASHCARD SECTION ══════════ -->
+<div class="section" id="sec-fc">
+<div class="fc-wrap">
+<div class="fc-inner">
+
+  <div class="fc-header">
+    <h2>Study Flashcards</h2>
+    <p>Click card to flip &nbsp;·&nbsp; Arrow keys to navigate &nbsp;·&nbsp; Space to flip</p>
+  </div>
+
+  <div class="fc-filters" id="fc-filters"></div>
+
+  <div class="fc-prog-wrap">
+    <div class="fc-prog-bar"><div class="fc-prog-fill" id="fc-prog" style="width:0%"></div></div>
+    <div class="fc-prog-lbl" id="fc-lbl">1 / 20</div>
+  </div>
+
+  <div class="fc-stage">
+    <div class="fc-card" id="fc-card" onclick="flipCard()">
+      <div class="fc-face fc-front" id="fc-front"></div>
+      <div class="fc-face fc-back" id="fc-back"></div>
+    </div>
+  </div>
+
+  <div class="fc-nav">
+    <button class="fc-nav-btn" onclick="fcNav(-1)" title="Previous">&#8592;</button>
+    <button class="fc-flip-btn" onclick="flipCard()">Flip Card</button>
+    <button class="fc-nav-btn" onclick="fcNav(1)" title="Next">&#8594;</button>
+  </div>
+  <div class="fc-kbd"><kbd>&#8592;</kbd> prev &nbsp; <kbd>&#8594;</kbd> next &nbsp; <kbd>Space</kbd> flip</div>
+
+</div>
+</div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   EXAM DATA
+═══════════════════════════════ */
+const QUESTIONS = [
+  /* ── SECTION A: MULTIPLE CHOICE (20) ── */
+  {type:'mc',diff:'easy',
+   q:'What are the two primary outputs of an object detection model?',
+   opts:['Feature maps and class scores','Bounding boxes and class labels','Pixel masks and confidence scores','Region proposals and embeddings'],
+   ans:1,
+   fb_correct:'Object detection outputs (1) bounding boxes {b1…bn} — rectangles localizing each object — and (2) class labels {c1…cn} naming each object. This distinguishes detection from plain classification, which only outputs a label.',
+   fb_wrong:'Object detection must answer both WHERE and WHAT for every object. Feature maps are intermediate representations, pixel masks belong to instance segmentation, and region proposals are intermediate steps in two-stage detectors.'},
+
+  {type:'mc',diff:'easy',
+   q:'In the Faster R-CNN pipeline, which component is computed once and shared between the RPN and the classification head?',
+   opts:['The ROI pooling layer','The fully connected layer','The convolutional feature map','The softmax output'],
+   ans:2,
+   fb_correct:'The convolutional feature map — produced by the backbone (e.g. ResNet) — is computed once and shared. This is the key efficiency innovation of Faster R-CNN over Fast R-CNN: both the RPN and the ROI classifier use the same feature map rather than re-computing features per region.',
+   fb_wrong:'ROI pooling crops regions FROM the shared feature map; it is not the shared component itself. The fully connected layers operate after ROI pooling, and softmax is the final classification step.'},
+
+  {type:'mc',diff:'easy',
+   q:'YOLO reframes object detection as which type of problem?',
+   opts:['A two-stage classification problem','A single-stage regression problem','A semantic segmentation problem','A generative modelling problem'],
+   ans:1,
+   fb_correct:'YOLO (You Only Look Once) reframes detection as a single-stage regression problem. Instead of proposing regions then classifying them, a single CNN directly regresses bounding box coordinates and class probabilities in one forward pass.',
+   fb_wrong:'Two-stage approaches (like Faster R-CNN) separate proposal generation from classification. YOLO collapses both into a single regression step — no separate proposal stage exists.'},
+
+  {type:'mc',diff:'easy',
+   q:'In YOLO v1 with S=7, how many grid cells is the image divided into?',
+   opts:['7','14','30','49'],
+   ans:3,
+   fb_correct:'S×S = 7×7 = 49 cells. The 448×448 image is divided into a 7×7 grid, giving each cell a size of 64×64 pixels (448÷7=64).',
+   fb_wrong:'S is the grid size per dimension. The total number of cells is S² = 7² = 49, not 7 or 14. The number 30 is the depth of the output vector per cell, not the cell count.'},
+
+  {type:'mc',diff:'medium',
+   q:'In YOLO v1, the full output tensor has dimensions 7×7×30. Which breakdown correctly accounts for the depth of 30?',
+   opts:['10 box params + 20 classes','5 box params + 5 classes + 20 confidence scores','5 (box 1) + 5 (box 2) + 20 class probabilities','2 confidence scores + 8 box params + 20 classes'],
+   ans:2,
+   fb_correct:'Each cell predicts B=2 bounding boxes. Each box has 5 values: (Δx, Δy, Δw, Δh, confidence). That gives 2×5=10 values. Plus C=20 conditional class probabilities. Total: 10+20=30. The class probabilities are shared across both boxes within a cell.',
+   fb_wrong:'The depth of 30 comes from: Box 1 = (Δx,Δy,Δw,Δh,c₁) = 5 values; Box 2 = (Δx,Δy,Δw,Δh,c₂) = 5 values; Class probs = P(class₁|obj)…P(class₂₀|obj) = 20 values. Total = 5+5+20=30.'},
+
+  {type:'mc',diff:'medium',
+   q:'Which grid cell is "responsible" for detecting an object in YOLO?',
+   opts:['The cell with the largest area of overlap with the object','The cell containing the top-left corner of the object','The cell whose centre is closest to the object','The cell containing the centre point of the object'],
+   ans:3,
+   fb_correct:'YOLO assigns responsibility based on where the object\'s centre point falls. The cell containing that centre point is the responsible cell — even if the object\'s bounding box extends far outside that cell.',
+   fb_wrong:'Top-left corner assignment would be arbitrary and shift with rotation. Maximum overlap would require expensive computation. The centre-point rule is simple, deterministic, and assigns exactly one cell per object.'},
+
+  {type:'mc',diff:'medium',
+   q:'Why are square roots applied to width and height in the YOLO bounding box loss?',
+   opts:['To normalize values between 0 and 1','So that equal absolute errors are penalized more heavily for small boxes','To make the loss differentiable','To match the scale of the confidence loss'],
+   ans:1,
+   fb_correct:'The square root compresses large values and magnifies small ones, so ∂Loss/∂w is larger for small widths. A 5-pixel error on a 10px-wide box (representing a 50% size error) is penalized more than the same 5-pixel error on a 200px-wide box (2.5% error). This is the core motivation.',
+   fb_wrong:'Values are already relative (0–1), so normalization is not the reason. The loss is differentiable with or without √. The scale-matching justification is not the stated reason in the YOLO paper.'},
+
+  {type:'mc',diff:'medium',
+   q:'In YOLO\'s loss function, λ_coord = 50 and λ_no_obj = 0.5. What design motivation explains these specific values?',
+   opts:['They balance gradient magnitudes between sigmoid and softmax outputs','λ_coord emphasizes precise localization; λ_no_obj prevents the dominant empty cells from overwhelming the loss','They are derived from the Pascal VOC class distribution','They match the ratio of bounding box parameters (10) to class parameters (20)'],
+   ans:1,
+   fb_correct:'In a 7×7 grid with 2 objects, roughly 47/49 cells are empty. Without λ_no_obj=0.5, empty cells dominate and push confidences to zero everywhere. λ_coord=50 compensates for the fact that box regression errors are inherently smaller (sub-pixel) and need amplification to train effectively.',
+   fb_wrong:'The values are not derived from activation function balance or class distribution. The 10:20 ratio argument is numerologically coincidental and not the design rationale.'},
+
+  {type:'mc',diff:'hard',
+   q:'A cell predicts two boxes with confidences c₁=0.8, c₂=0.6. The class vector gives max probability p=0.9 (class "person"). What are the final class-confidence scores ĉ₁ and ĉ₂?',
+   opts:['ĉ₁=0.8, ĉ₂=0.6','ĉ₁=0.72, ĉ₂=0.54','ĉ₁=0.9, ĉ₂=0.9','ĉ₁=0.85, ĉ₂=0.75'],
+   ans:1,
+   fb_correct:'The class-confidence score is ĉ = c × p, where p = max(p₁…p₂₀). Here p=0.9. So ĉ₁ = 0.8×0.9 = 0.72 and ĉ₂ = 0.6×0.9 = 0.54. Box 1 is kept (higher score). This formula combines objectness with class certainty.',
+   fb_wrong:'The raw confidence scores (0.8, 0.6) are not the final scores — they must be multiplied by the max class probability. Using p=0.9: ĉ₁=0.8×0.9=0.72, ĉ₂=0.6×0.9=0.54. Simply averaging or adding does not match the formula.'},
+
+  {type:'mc',diff:'hard',
+   q:'YOLO v1 uses 24 convolutional layers. The architecture table groups them as 6+8+2+4+4. Which statement correctly describes what happens between the last convolutional output and the final 7×7×30 prediction tensor?',
+   opts:['The 7×7×1024 tensor is directly reshaped to 7×7×30 with a 1×1 conv','The tensor is flattened to 50,176 values, passed through FC layers (→4096→1470), then reshaped','Global average pooling reduces it to 1024 values which are tiled across the grid','The 7×7×1024 is downsampled to 7×7×30 via strided convolution'],
+   ans:1,
+   fb_correct:'The last conv output is 7×7×1024. It is flattened to 7×7×1024 = 50,176 values. This passes through two FC layers: 50,176→4,096 (W₁ has 50,176×4,096 weights) then 4,096→1,470 (W₂ has 4,096×1,470 weights). The 1,470-value vector is then reshaped to 7×7×30. Verify: 7×7×30 = 1,470 ✓',
+   fb_wrong:'A 1×1 conv cannot reduce depth from 1024 to 30 while preserving the spatial 7×7 layout to match YOLO\'s formulation. Global average pooling would destroy spatial information. Strided convolution would reduce spatial dimensions, not depth alone.'},
+
+  {type:'mc',diff:'hard',
+   q:'Which of the following correctly distinguishes the "objectness confidence" c from the "conditional class probability" p_c in YOLO?',
+   opts:['c = P(class c | object); p_c = P(object) × IoU','c = P(object) × IoU(pred,truth); p_c = P(class c | object)','c = argmax class score; p_c = normalized softmax output','c and p_c are identical in function but differ in scale'],
+   ans:1,
+   fb_correct:'c (objectness/confidence) = Pr(object) × IoU(predicted box, ground truth) — it reflects both whether an object is present AND how well the box fits. p_c = Pr(class c | object) — it is conditional on an object being present. The final detection score = c × p_c = Pr(object) × IoU × Pr(class|object).',
+   fb_wrong:'Option A reverses the definitions. c is not the argmax; argmax is applied to the class probability vector to determine the predicted class. They are not identical in function — c captures box quality while p_c captures classification certainty.'},
+
+  {type:'mc',diff:'medium',
+   q:'In YOLO label encoding, a cell A₁₁ contains the centre of a "person" object (class index 14 in the 20-class VOC set). What does its ground-truth class probability vector look like?',
+   opts:['All values = 1/20 = 0.05 (uniform distribution)','All zeros except position 14 = 1.0 (one-hot)','Softmax over 20 logits','All values = 0.0 except positions near 14'],
+   ans:1,
+   fb_correct:'Ground-truth class labels use one-hot encoding: the correct class position is set to 1.0 and all other 19 positions are 0.0. For person (class 14): p̂ = [0,0,…,0, 1.0, 0,…,0] with 1.0 at index 14. This enables the squared-error classification loss.',
+   fb_wrong:'Uniform distribution would indicate maximum uncertainty — not a ground-truth label. Softmax is applied to model OUTPUTS, not labels. The one-hot encoding is the correct supervised target format used in YOLO.'},
+
+  {type:'mc',diff:'hard',
+   q:'In YOLO v1, if an image contains exactly 50 objects with distinct centre points, what would happen?',
+   opts:['All 50 are detected since B=2 boxes per cell','Only 49 can be detected; one object is lost since max cells = S² = 49','Only 2 are detected since B=2','The model crashes due to tensor overflow'],
+   ans:1,
+   fb_correct:'This is a fundamental limitation of YOLO v1. With a 7×7 grid, there are only S²=49 cells. Even though each cell predicts B=2 boxes, each cell can only be responsible for ONE object (the one whose centre falls in it). With 50 objects, at least two centres must fall in the same cell — only one can be the supervised target. The 50th object is lost.',
+   fb_wrong:'B=2 boxes per cell do not mean 2 objects per cell — both boxes learn to detect the same responsible object (the one whose centre is in the cell). The model does not crash; it simply cannot detect objects beyond the cell count.'},
+
+  {type:'mc',diff:'medium',
+   q:'The classification loss for a no-object cell in YOLO is:',
+   opts:['Sum of squared class probability errors across all 20 classes','Squared error between predicted and ground-truth confidence for both boxes','Zero — no classification loss is computed for empty cells','Cross-entropy between predicted class probabilities and uniform distribution'],
+   ans:2,
+   fb_correct:'For no-object cells, ONLY the objectness confidence loss is computed: L_no_obj = (c₁* − 0)² + (c₂* − 0)². The ground-truth confidence is 0.0 (no object), so the model is penalized for predicting non-zero confidence. No box regression or class loss is computed since there is no object to localize or classify.',
+   fb_wrong:'Class loss and box regression loss are only computed for object cells (when 1^obj_i = 1). The no-object loss is purely a confidence suppression term — pushing the predicted confidence scores toward zero for empty cells.'},
+
+  {type:'mc',diff:'hard',
+   q:'Consider two bounding boxes: Box A (predicted) = 20×20px, Box B (ground truth) = 20×20px, perfectly aligned. A 2px error is added to Box A\'s width: it becomes 22×20px. Compared to the same 2px error on a 200×200px ground-truth box, how does the √w trick affect the loss contribution?',
+   opts:['Both errors contribute equally','The 20px error contributes more because √20 < √200','The error on the 20px box contributes a larger loss because the √ gradient is steeper for small values','The error on the 200px box contributes more because absolute pixel difference is the same'],
+   ans:2,
+   fb_correct:'The derivative d(√w)/dw = 1/(2√w). For the 20px box, this gradient ≈ 1/(2√20) ≈ 0.112. For the 200px box, ≈ 1/(2√200) ≈ 0.035. The gradient is ~3× larger for the small box, meaning the same 2px error creates a larger loss signal. This is exactly the intended behavior: punish relative errors more than absolute errors.',
+   fb_wrong:'The √ trick explicitly makes errors NON-equal. A 2px error on a 20px box is a 10% size error; on a 200px box it is 1%. The loss correctly reflects this proportional difference through the steeper gradient at small values.'},
+
+  {type:'mc',diff:'medium',
+   q:'Fast YOLO differs from YOLO v1 in which key architectural aspect?',
+   opts:['It uses a 14×14 grid instead of 7×7','It predicts B=5 boxes per cell instead of B=2','It uses 9 convolutional layers instead of 24','It predicts 40 classes instead of 20'],
+   ans:2,
+   fb_correct:'Fast YOLO reduces the network depth to 9 convolutional layers (from 24), significantly lowering computation. It retains the same 7×7 grid, B=2 boxes, 20 classes, and 7×7×30 output tensor. The trade-off is lower accuracy in exchange for higher inference speed.',
+   fb_wrong:'The grid size (7×7), number of boxes per cell (B=2), and number of classes (20) all remain identical in Fast YOLO. Only the number of convolutional layers changes (9 vs 24).'},
+
+  {type:'mc',diff:'medium',
+   q:'Why was the YOLO backbone pre-trained on ImageNet at 224×224 before fine-tuning for detection at 448×448?',
+   opts:['To reduce memory usage during training','To leverage learned visual features from millions of labelled images before the harder detection task','Because Pascal VOC images are only 224×224 pixels','To match the RPN anchor box dimensions'],
+   ans:1,
+   fb_correct:'Pre-training on ImageNet (1M+ images, 1000 classes) at 224×224 gives the backbone strong visual feature representations before tackling the harder detection task. The resolution is then increased to 448×448 for fine-tuning to capture finer spatial details needed for localization. This is standard transfer learning practice.',
+   fb_wrong:'Memory is not the reason — 448×448 is actually more memory-intensive. Pascal VOC images vary in size. RPN anchors belong to Faster R-CNN and are unrelated to YOLO pre-training resolution.'},
+
+  {type:'mc',diff:'hard',
+   q:'During YOLO output parsing, the "responsible" box for loss computation is selected by highest IoU with the ground-truth box. Among the 30 values output by a cell, which values belong to the non-responsible box during training?',
+   opts:['All 5 values are used in the confidence loss only','The non-responsible box contributes only to the no-object confidence loss','The non-responsible box contributes to neither box regression nor classification loss — only its confidence is pushed toward 0 via λ_no_obj if it has low IoU','The non-responsible box is completely ignored in all loss terms'],
+   ans:2,
+   fb_correct:'During training, of the two predicted boxes per cell, only the "responsible" box (highest IoU with ground truth) contributes to box regression loss and is paired with the confidence loss target of 1.0. The non-responsible box contributes only to the no-object confidence loss — its confidence is pushed toward 0 with weight λ_no_obj=0.5. This encourages specialization.',
+   fb_wrong:'The non-responsible box is not completely ignored — its confidence IS penalized (pushed to zero) via the no-object loss term. It does not contribute to box coordinates or class probabilities.'},
+
+  {type:'mc',diff:'hard',
+   q:'In YOLO v1, each cell predicts class probabilities P(class | object) — ONE set shared across both bounding boxes. What is a direct consequence of this design?',
+   opts:['A cell can detect two objects of different classes','A cell can only detect objects of the same class','Detection accuracy improves when B>2','The confidence scores for both boxes are always identical'],
+   ans:1,
+   fb_correct:'Because class probabilities are shared across both predicted boxes within a cell, the cell can only commit to one class prediction. Even if two objects of different classes have their centres in the same cell, the cell will classify both as whichever class has the highest shared probability — one will inevitably be misclassified. This is a key limitation of YOLO v1.',
+   fb_wrong:'The shared class vector means ONLY ONE class is predicted per cell. Two objects of different classes in the same cell cannot both be correctly classified. Confidence scores can differ (they are box-specific), but the class assignment is shared.'},
+
+  {type:'mc',diff:'hard',
+   q:'The Faster R-CNN RPN generates anchor boxes at each feature map location. If the feature map is 14×14 with 9 anchor boxes per location, how many raw proposals does the RPN generate before NMS?',
+   opts:['14','126','1,764','4,096'],
+   ans:2,
+   fb_correct:'14×14 spatial locations × 9 anchor boxes per location = 14×14×9 = 1,764 raw anchor proposals. After NMS and top-k filtering, this is reduced to ~300 proposals passed to the ROI classifier. This illustrates why Faster R-CNN is slower than YOLO despite the shared feature map.',
+   fb_wrong:'14 would be one row of locations. 126 = 14×9 (one column only). 4,096 is the FC layer size, not a proposal count. The correct calculation is 14×14×9=1,764.'},
+
+  /* ── SECTION B: TRUE / FALSE (10) ── */
+  {type:'tf',diff:'easy',
+   q:'In YOLO, the bounding box predicted by a cell must fit entirely within that cell\'s spatial region.',
+   ans:false,
+   fb_correct:'This is FALSE. Only the object\'s centre point must fall within the responsible cell. The predicted bounding box can — and often does — extend far beyond the cell boundaries. For example, a cell in the center detects a person whose box spans much of the image height.',
+   fb_wrong:'This is a common misconception. The cell boundary only determines RESPONSIBILITY (via the centre rule), not the extent of the predicted box.'},
+
+  {type:'tf',diff:'easy',
+   q:'Faster R-CNN computes a separate feature extraction pass for each region proposal.',
+   ans:false,
+   fb_correct:'FALSE. This describes R-CNN (the original), which ran a CNN on each proposal separately — making it extremely slow. Faster R-CNN\'s key innovation is computing ONE shared feature map from the full image, then using ROI Pooling to crop proposal features from it. This avoids redundant computation.',
+   fb_wrong:'This was the bottleneck of the original R-CNN. Faster R-CNN specifically solves this by sharing the feature map across all proposals.'},
+
+  {type:'tf',diff:'medium',
+   q:'In YOLO v1, the 20 class probabilities output by each cell are independent of whether an object is present.',
+   ans:false,
+   fb_correct:'FALSE. The class probabilities are P(class_c | object) — they are CONDITIONAL on an object being present. They do not model whether an object exists; that is the role of the confidence score c. The final class-confidence score ĉ = c × p combines both to produce an unconditional detection score.',
+   fb_wrong:'The notation P(class | object) explicitly conditions on object presence. This is why multiplying by c (which encodes object presence) produces a meaningful final detection score.'},
+
+  {type:'tf',diff:'medium',
+   q:'YOLO v1 applies the classification loss to both object cells and no-object cells during training.',
+   ans:false,
+   fb_correct:'FALSE. Classification loss L^cls is only applied to cells where 1^obj_i = 1 (cells containing an object centre). No-object cells only receive the objectness confidence loss (L^conf with target 0.0 for both boxes). Computing class loss on empty cells would be meaningless since there is no target class.',
+   fb_wrong:'The indicator function 1^obj_i ensures classification loss is gated on object presence. Only confidence loss applies to empty cells — the model should simply learn to output low confidence, nothing more.'},
+
+  {type:'tf',diff:'medium',
+   q:'In YOLO v1, with B=2 bounding boxes per cell, each cell can detect a maximum of 2 distinct objects.',
+   ans:false,
+   fb_correct:'FALSE. B=2 means each cell predicts 2 candidate boxes for the SAME one responsible object. Both boxes compete to best fit that one object (the responsible one is chosen by highest IoU). A cell cannot be simultaneously responsible for two distinct objects — only one object centre can be assigned per cell.',
+   fb_wrong:'The B=2 boxes represent multiple attempts at predicting the same object, not slots for different objects. They allow the network to specialize (e.g. one box for wide objects, one for tall ones), but both target the same ground-truth object.'},
+
+  {type:'tf',diff:'hard',
+   q:'The total YOLO v1 output tensor contains exactly 1,470 scalar values, computed as 7 × 7 × 30.',
+   ans:true,
+   fb_correct:'TRUE. S=7, S=7, depth = B×5+C = 2×5+20 = 30. Total = 7×7×30 = 1,470 values. This entire tensor is produced in a single forward pass through the network — from the 1,470-value FC output reshaped to 7×7×30.',
+   fb_wrong:'The calculation is correct: 7×7=49 cells × 30 values per cell = 1,470. Verify the depth: 5 (box1) + 5 (box2) + 20 (classes) = 30 ✓.'},
+
+  {type:'tf',diff:'hard',
+   q:'In YOLO\'s bounding box loss, applying square root to width and height means a predicted width of 0.1 (ground truth 0.2) produces a LARGER loss than a predicted width of 0.8 (ground truth 0.9), despite both having the same absolute error of 0.1.',
+   ans:true,
+   fb_correct:'TRUE. Loss_w = (√0.2 − √0.1)² = (0.447−0.316)² = (0.131)² ≈ 0.017. Loss_w = (√0.9 − √0.8)² = (0.949−0.894)² = (0.055)² ≈ 0.003. The small-box case produces ~5.6× larger loss, correctly penalizing the same absolute error more heavily when the box is small (relative error is larger).',
+   fb_wrong:'Calculate directly: (√0.2−√0.1)²≈0.017 vs (√0.9−√0.8)²≈0.003. Despite equal absolute errors of 0.1, the small-box error produces a ~5.6× larger loss. The √ transformation achieves proportional sensitivity.'},
+
+  {type:'tf',diff:'hard',
+   q:'YOLO v1\'s classification loss uses cross-entropy, consistent with standard multi-class classification practice.',
+   ans:false,
+   fb_correct:'FALSE. YOLO v1 uses SUM OF SQUARED ERRORS (L²) for the classification loss: L^cls = Σ(p_{i,c} − p̂_{i,c})². This is unusual — most classifiers use cross-entropy. The authors chose MSE for all loss terms (box, confidence, class) to keep the formulation consistent as a unified regression problem, trading classification optimality for implementation simplicity.',
+   fb_wrong:'Cross-entropy is the standard for classification, but YOLO v1 intentionally uses MSE (squared error) across all its loss terms. This is one of the known suboptimalities of YOLO v1 addressed in later versions.'},
+
+  {type:'tf',diff:'easy',
+   q:'Post-processing in YOLO includes Non-Maximum Suppression (NMS) to eliminate duplicate detections of the same object.',
+   ans:true,
+   fb_correct:'TRUE. After parsing the 7×7×30 output and filtering low-confidence boxes, multiple cells may predict overlapping boxes for the same object. NMS keeps the box with the highest class-confidence score and suppresses any remaining boxes with IoU above a threshold. This produces clean final detections.',
+   fb_wrong:'NMS is an essential post-processing step in YOLO (and most detectors). Without it, the same object would appear with multiple overlapping bounding boxes from neighbouring cells.'}
+];
+
+/* ═══════════════════════════════
+   EXAM LOGIC
+═══════════════════════════════ */
+let answered = {}, stats = {ans:0,cor:0,wrg:0};
+
+function buildExam(){
+  const body = document.getElementById('exam-body');
+  let html = '<div class="q-section-hdr">Section A — Multiple Choice Questions (20 marks)</div>';
+  let qn=0;
+  QUESTIONS.forEach((q,i)=>{
+    qn++;
+    if(i===20) html+='<div class="q-section-hdr" style="margin-top:2.5rem">Section B — True / False Questions (10 marks)</div>';
+    html+=buildQ(q,i,qn);
+  });
+  body.innerHTML=html;
+}
+
+function buildQ(q,i,num){
+  const diffClass={'easy':'diff-easy','medium':'diff-medium','hard':'diff-hard'}[q.diff];
+  const typeLabel=q.type==='mc'?'Multiple Choice':'True / False';
+  let optHtml='';
+  if(q.type==='mc'){
+    optHtml='<div class="opts">';
+    q.opts.forEach((o,j)=>{
+      optHtml+=`<button class="opt" id="opt_${i}_${j}" onclick="answerMC(${i},${j})"><span class="opt-letter">${String.fromCharCode(65+j)}</span>${o}</button>`;
+    });
+    optHtml+='</div>';
+  } else {
+    optHtml=`<div class="tf-row"><button class="tf-btn" id="tf_${i}_t" onclick="answerTF(${i},true)">True</button><button class="tf-btn" id="tf_${i}_f" onclick="answerTF(${i},false)">False</button></div>`;
+  }
+  return `<div class="q-card" id="qcard_${i}">
+    <div class="q-inner">
+      <div class="q-meta">
+        <span class="q-num">Q${num}.</span>
+        <span class="diff-badge ${diffClass}">${q.diff.charAt(0).toUpperCase()+q.diff.slice(1)}</span>
+        <span class="type-badge">${typeLabel}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${optHtml}
+      <div class="feedback" id="fb_${i}"></div>
+    </div>
+  </div>`;
+}
+
+function answerMC(i,chosen){
+  if(answered[i]!==undefined)return;
+  const q=QUESTIONS[i];
+  const correct=chosen===q.ans;
+  answered[i]=correct;
+  updateStats(correct);
+  q.opts.forEach((_,j)=>{
+    const btn=document.getElementById(`opt_${i}_${j}`);
+    if(btn){
+      btn.disabled=true;
+      if(j===q.ans) btn.classList.add('st-reveal');
+      if(j===chosen&&correct) btn.classList.remove('st-reveal'),btn.classList.add('st-correct');
+      if(j===chosen&&!correct) btn.classList.add('st-wrong');
+    }
+  });
+  showFB(i,correct,q);
+}
+
+function answerTF(i,chosen){
+  if(answered[i]!==undefined)return;
+  const q=QUESTIONS[i];
+  const correct=chosen===q.ans;
+  answered[i]=correct;
+  updateStats(correct);
+  const tb=document.getElementById(`tf_${i}_t`);
+  const fb=document.getElementById(`tf_${i}_f`);
+  if(tb)tb.disabled=true;
+  if(fb)fb.disabled=true;
+  const correctEl=q.ans?document.getElementById(`tf_${i}_t`):document.getElementById(`tf_${i}_f`);
+  const chosenEl=chosen?document.getElementById(`tf_${i}_t`):document.getElementById(`tf_${i}_f`);
+  if(correctEl) correctEl.classList.add('st-reveal');
+  if(!correct&&chosenEl) chosenEl.classList.add('st-wrong');
+  if(correct&&chosenEl){chosenEl.classList.remove('st-reveal');chosenEl.classList.add('st-correct');}
+  showFB(i,correct,q);
+}
+
+function showFB(i,correct,q){
+  const el=document.getElementById(`fb_${i}`);
+  if(!el)return;
+  el.className='feedback '+(correct?'fb-correct':'fb-wrong');
+  el.innerHTML=`<span class="fb-icon">${correct?'✓':'✗'}</span> ${correct?q.fb_correct:q.fb_wrong}`;
+  el.style.display='block';
+  document.getElementById(`qcard_${i}`).classList.add(correct?'state-correct':'state-wrong');
+}
+
+function updateStats(correct){
+  stats.ans++;
+  if(correct) stats.cor++; else stats.wrg++;
+  document.getElementById('s-ans').textContent=stats.ans;
+  document.getElementById('s-cor').textContent=stats.cor;
+  document.getElementById('s-wrg').textContent=stats.wrg;
+  document.getElementById('s-rem').textContent=QUESTIONS.length-stats.ans;
+  document.getElementById('eprog').style.width=(stats.ans/QUESTIONS.length*100)+'%';
+}
+
+function submitExam(){
+  let unanswered=0;
+  QUESTIONS.forEach((_,i)=>{if(answered[i]===undefined)unanswered++;});
+  const pct=Math.round(stats.cor/QUESTIONS.length*100);
+  const banner=document.getElementById('result-banner');
+  document.getElementById('rb-score').textContent=stats.cor+' / '+QUESTIONS.length;
+  const gEl=document.getElementById('rb-grade');
+  let gl='',gc='';
+  if(pct>=90){gl='A — Distinction';gc='grade-a';}
+  else if(pct>=75){gl='B — Merit';gc='grade-b';}
+  else if(pct>=60){gl='C — Pass';gc='grade-c';}
+  else{gl='D — Fail';gc='grade-d';}
+  gEl.textContent=gl; gEl.className='rb-grade '+gc;
+  const note=document.getElementById('rb-note');
+  note.textContent=unanswered>0?`Note: ${unanswered} question(s) were left unanswered.`:`All ${QUESTIONS.length} questions were answered.`;
+  banner.style.display='block';
+  banner.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function restartExam(){
+  answered={};stats={ans:0,cor:0,wrg:0};
+  document.getElementById('s-ans').textContent='0';
+  document.getElementById('s-cor').textContent='0';
+  document.getElementById('s-wrg').textContent='0';
+  document.getElementById('s-rem').textContent=QUESTIONS.length;
+  document.getElementById('eprog').style.width='0%';
+  document.getElementById('result-banner').style.display='none';
+  buildExam();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════
+   FLASHCARD DATA
+═══════════════════════════════ */
+const CARDS=[
+  {cat:'concept',q:'What fundamental problem does object detection solve that image classification does not?',
+   a:'Detection must answer both WHERE (bounding box coordinates) and WHAT (class label) for every object in the image, handling multiple overlapping objects simultaneously. Classification only outputs a single label for the whole image.'},
+  {cat:'compare',q:'Compare the pipeline stages of Faster R-CNN vs YOLO v1.',
+   a:'Faster R-CNN: (1) Backbone extracts shared feature map → (2) RPN proposes ~300 regions → (3) ROI Pooling crops features → (4) FC head classifies + refines boxes. YOLO v1: Single CNN forward pass → direct regression of 7×7×30 output tensor. No separate proposal stage.'},
+  {cat:'formula',q:'Write the full YOLO v1 output tensor dimensions and explain each dimension.',
+   a:'Output = S × S × (B×5 + C) = 7 × 7 × 30\nS=7: grid size\nB=2: boxes per cell\n5 values per box: (Δx, Δy, Δw, Δh, confidence)\nC=20: conditional class probabilities P(class_c | object)\nTotal: 7×7×30 = 1,470 values'},
+  {cat:'formula',q:'State the YOLO class-confidence score formula and define each term.',
+   a:'ĉ = c × p\nwhere:\n  c = objectness confidence = P(object) × IoU(pred, truth)\n  p = max(p₁, p₂, …, p₂₀) — highest class probability\n  ĉ = final detection score combining box quality with class certainty\nThe predicted class l = argmax(p₁…p₂₀)'},
+  {cat:'formula',q:'Write the YOLO bounding box loss formula and explain the square root terms.',
+   a:'L^box = (Δx*−Δx̂)² + (Δy*−Δŷ)² + (√Δw*−√Δŵ)² + (√Δh*−√Δĥ)²\nSquare roots on w and h: the gradient d(√w)/dw = 1/(2√w) is larger for small w, so equal absolute errors are penalized more for small boxes. A 2px error on a 10px box >> 2px error on a 200px box.'},
+  {cat:'formula',q:'State the full YOLO total loss L and identify the role of each weighting term.',
+   a:'L = Σᵢ 1^obj_i × [λ_coord·L^box + L^conf + L^cls] + λ_no_obj × Σᵢ 1^no-obj_i × L^conf\nλ_coord = 50: amplifies box regression loss (compensates for small coordinate errors)\nλ_no_obj = 0.5: downweights empty cells (47/49 cells) to prevent dominance\n1^obj_i: gates object losses to responsible cells only'},
+  {cat:'concept',q:'What is the "centre rule" in YOLO and why is it used?',
+   a:'The cell containing an object\'s centre point is solely responsible for predicting that object. The bounding box may extend far beyond the cell.\nWhy: (1) Deterministic — exactly one cell per object. (2) Simple — no IoU computation needed at assignment time. (3) Geometrically natural — the centre is scale-invariant.'},
+  {cat:'concept',q:'Explain the distinction between P(class|object) and the final detection score in YOLO.',
+   a:'P(class_c | object) — conditional probability, assumes an object IS present. Does not account for whether an object exists.\nFinal score ĉ = c × P(class_c | object) = P(object) × IoU × P(class_c | object)\nThis is an unconditional detection score that is near zero both when no object is present (c≈0) and when the wrong class is predicted (p≈0).'},
+  {cat:'arch',q:'Describe the YOLO v1 architecture layers in order from input to output.',
+   a:'Input 448×448×3\n→ 24 Conv layers (inspired by GoogLeNet), grouped 6+8+2+4+4\n→ Interleaved Max-Pooling reduces spatial dims to 7×7×1024\n→ Flatten → 50,176-dim vector\n→ FC₁ (50,176→4,096) with Leaky ReLU\n→ FC₂ (4,096→1,470)\n→ Reshape → 7×7×30 prediction tensor'},
+  {cat:'concept',q:'Why are label encodings for empty grid cells all zeros in YOLO?',
+   a:'For empty cells: no object centre falls inside → ground truth confidence = 0, box coordinates are undefined, class probabilities are meaningless. All 30 values set to zero. The loss function uses indicator 1^obj_i to gate object-specific losses, and 1^no-obj_i to apply only the confidence suppression loss to these cells.'},
+  {cat:'compare',q:'List the four main drawbacks of Faster R-CNN that YOLO was designed to address.',
+   a:'1. Multi-stage pipeline — separate proposal + classification steps\n2. Each component trained separately — not fully end-to-end\n3. Too slow for real-time — ~5–7 FPS vs 45+ FPS for YOLO\n4. Poor generalizability — architecture tightly coupled to specific design choices, hard to adapt to new domains'},
+  {cat:'limit',q:'State the three main limitations of YOLO v1.',
+   a:'1. Max 49 detectable objects (one per 7×7 cell)\n2. Difficulty detecting small objects in groups — two objects sharing a cell centre can only register one\n3. Poor localization — less precise bounding boxes than two-stage detectors, especially for unusual aspect ratios and shapes\n(Also: shared class vector per cell cannot handle two different-class objects in one cell)'},
+  {cat:'arch',q:'What is ROI Pooling and why is it necessary in Faster R-CNN?',
+   a:'ROI Pooling crops the portion of the shared feature map corresponding to each proposed region and resizes it to a fixed spatial size (e.g. 7×7). Necessary because: (1) region proposals vary in size, (2) the FC classifier requires fixed-size input, (3) it avoids re-running the expensive backbone per region. It connects the variable-size RPN proposals to the fixed-size classifier.'},
+  {cat:'formula',q:'In YOLO, how is the "responsible" predicted box selected among B=2 candidates during training?',
+   a:'The responsible box = argmax_b IoU(predicted_box_b, ground_truth_box)\nThe box with the HIGHEST Intersection over Union with the ground-truth box is selected. This box contributes to the box regression loss and receives confidence target = 1.0. The other box receives confidence target = 0.0 via the no-object loss term.'},
+  {cat:'concept',q:'Explain label encoding for an object cell in YOLO. What are the five components of the ground-truth vector?',
+   a:'For cell containing object centre:\n(1) Δx̂: x-offset of object centre within cell (0–1)\n(2) Δŷ: y-offset of object centre within cell (0–1)\n(3) Δŵ: object width relative to image width (0–1)\n(4) Δĥ: object height relative to image height (0–1)\n(5) ĉ = 1.0 (object present)\n+ One-hot class vector of 20 values (1.0 at correct class, 0 elsewhere)'},
+  {cat:'arch',q:'What is the purpose of the YOLO pre-training stage on ImageNet, and how does the resolution change?',
+   a:'Pre-training: 24 conv layers trained on ImageNet (1M+ images, 1000 classes) at 224×224. Goal: learn rich visual features (edges, textures, shapes) from large supervised dataset before the harder detection task.\nFine-tuning: resolution increased to 448×448 for detection on Pascal VOC. Higher resolution helps the network see finer spatial details needed for accurate localization.'},
+  {cat:'compare',q:'Compare Fast YOLO vs YOLO v1 in terms of architecture and output.',
+   a:'YOLO v1: 24 conv layers → ~45 FPS, higher accuracy\nFast YOLO: 9 conv layers → ~155 FPS, lower accuracy\nBoth share: 7×7 grid, B=2 boxes, C=20 classes, 7×7×30 output tensor\nTrade-off: speed vs accuracy. Fast YOLO sacrifices detection accuracy for real-time performance on constrained hardware.'},
+  {cat:'concept',q:'What is Non-Maximum Suppression (NMS) and at which stage of YOLO inference is it applied?',
+   a:'NMS is applied after output parsing. Steps:\n1. Filter all 49 candidate boxes below a confidence threshold\n2. Sort remaining boxes by class-confidence score ĉ\n3. Keep highest-scoring box, suppress any remaining box with IoU > threshold\n4. Repeat for remaining boxes\nResult: one clean bounding box per detected object, eliminating duplicates from neighbouring cells.'},
+  {cat:'formula',q:'Compute the objectness confidence loss for a no-object cell with predicted confidences c₁=0.4, c₂=0.3.',
+   a:'L^conf_no_obj = (c₁ − ĉ₁)² + (c₂ − ĉ₂)²\nwhere ground-truth ĉ₁ = ĉ₂ = 0.0 (no object present)\n= (0.4 − 0.0)² + (0.3 − 0.0)²\n= 0.16 + 0.09\n= 0.25\nThis loss penalizes the model for predicting non-zero confidence in an empty cell.'},
+  {cat:'concept',q:'Why does YOLO v1 use squared error (MSE) for classification instead of the conventional cross-entropy loss?',
+   a:'YOLO v1 uses MSE for all loss terms (box, confidence, class) to maintain a unified regression formulation — treating the entire output as a direct regression problem. The authors acknowledge this is suboptimal for classification (cross-entropy is better calibrated for class probabilities), but chose simplicity and consistency. This is a known limitation addressed in later YOLO versions.'}
+];
+
+/* ═══════════════════════════════
+   FLASHCARD LOGIC
+═══════════════════════════════ */
+const CATS=['all','concept','formula','arch','compare','limit'];
+const CAT_LABELS={'all':'All Cards','concept':'Concepts','formula':'Formulas','arch':'Architecture','compare':'Comparisons','limit':'Limitations'};
+const TAG_CLASSES={'concept':'fc-tag-concept','formula':'fc-tag-formula','arch':'fc-tag-arch','compare':'fc-tag-compare','limit':'fc-tag-limit'};
+
+let fcFilter='all', fcFiltered=[], fcIdx=0, fcFlipped=false;
+
+function buildFilters(){
+  const wrap=document.getElementById('fc-filters');
+  wrap.innerHTML=CATS.map(c=>`<button class="fc-filter${c==='all'?' active':''}" onclick="setFCFilter('${c}')">${CAT_LABELS[c]}</button>`).join('');
+}
+
+function setFCFilter(cat){
+  fcFilter=cat;
+  fcIdx=0;
+  fcFiltered=cat==='all'?[...CARDS]:CARDS.filter(c=>c.cat===cat);
+  document.querySelectorAll('.fc-filter').forEach(b=>b.classList.toggle('active',b.textContent===CAT_LABELS[cat]));
+  renderCard();
+}
+
+function renderCard(){
+  const card=fcFiltered[fcIdx];
+  if(!card)return;
+  const front=document.getElementById('fc-front');
+  const back=document.getElementById('fc-back');
+  const tagCls=TAG_CLASSES[card.cat]||'fc-tag-concept';
+  front.innerHTML=`<span class="fc-tag ${tagCls}">${CAT_LABELS[card.cat]}</span><div class="fc-q">${card.q}</div><div class="fc-hint">Click to reveal answer</div>`;
+  back.innerHTML=`<div class="fc-ans-label">Answer</div><div class="fc-ans">${card.a.replace(/\n/g,'<br/>')}</div>`;
+  const el=document.getElementById('fc-card');
+  fcFlipped=false;
+  el.classList.remove('flipped');
+  const total=fcFiltered.length;
+  document.getElementById('fc-prog').style.width=((fcIdx+1)/total*100)+'%';
+  document.getElementById('fc-lbl').textContent=`${fcIdx+1} / ${total}`;
+}
+
+function flipCard(){
+  fcFlipped=!fcFlipped;
+  document.getElementById('fc-card').classList.toggle('flipped',fcFlipped);
+}
+
+function fcNav(dir){
+  const total=fcFiltered.length;
+  fcIdx=(fcIdx+dir+total)%total;
+  renderCard();
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('sec-fc').classList.contains('active')){
+    if(e.key==='ArrowRight') fcNav(1);
+    else if(e.key==='ArrowLeft') fcNav(-1);
+    else if(e.key===' '){e.preventDefault();flipCard();}
+  }
+});
+
+/* ═══════════════════════════════
+   SECTION SWITCHING
+═══════════════════════════════ */
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelector(`.nav-tab[onclick="showSection('${id}')"]`).classList.add('active');
+}
+
+/* ── INIT ── */
+buildExam();
+buildFilters();
+setFCFilter('all');
+</script>
+</body>
+</html>
